@@ -130,8 +130,10 @@ PAGE2 = ''']
 </html>
 '''
 
+from django.contrib.auth.decorators import login_required
 from finance.models import *
 
+@login_required
 def balance(request, year):
     monthly_expenses = []
     monthly_incomes = []
@@ -141,7 +143,8 @@ def balance(request, year):
     incomes = "{type: 'column', name: 'Receitas', data: %r}" % monthly_incomes
     expenses = "{type: 'column', name: 'Despesas', data: %r}" % monthly_expenses
     return HttpResponse(BALANCE_PAGE % (incomes, expenses))
-        
+
+@login_required
 def pie_macro(request, year, month):
     despesas = Expense.objects.filter(date__year=year).filter(date__month=month)
     macros = {}
@@ -157,6 +160,7 @@ def pie_macro(request, year, month):
     values = ",".join([u"['%s = R$ %.2f', %f]" % (k,v,v/total*100)  for k,v in macros.items() ])
     return HttpResponse(PIE_PAGE+values+PAGE2)
 
+@login_required
 def pie_micro(request, year, month):
     despesas = Expense.objects.filter(date__year=year).filter(date__month=month)
     macros = {}
