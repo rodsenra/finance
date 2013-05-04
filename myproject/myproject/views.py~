@@ -11,70 +11,105 @@ PIE_PAGE = u'''
    <div id="container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
 
   <script type="text/javascript">
-$(function () {
+$(function() {
     var chart;
-        $(document).ready(function() {
+    $(document).ready(function() {
 
         // Radialize the colors
         Highcharts.getOptions().colors = Highcharts.map(Highcharts.getOptions().colors, function(color) {
             return {
-                    radialGradient: { cx: 0.5, cy: 0.3, r: 0.7 },
-                            stops: [
-                                        [0, color],
-                                                    [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
-                                                            ]
-                                                                };
-                                                                });
+                radialGradient: {
+                    cx: 0.5,
+                    cy: 0.3,
+                    r: 0.7
+                },
+                stops: [
+                    [0, color],
+                    [1, Highcharts.Color(color).brighten(-0.3).get('rgb')] // darken
+                    ]
+            };
+        });
 
-                                                                // Build the chart
-                                                                        chart = new Highcharts.Chart({
-                                                                                    chart: {
-                                                                                                    renderTo: 'container',
-                                                                                                                    plotBackgroundColor: null,
-                                                                                                                                    plotBorderWidth: null,
-                                                                                                                                                    plotShadow: false
-                                                                                                                                                                },
-                                                                                                                                                                            title: {
-                                                                                                                                                                                            text: 'Macro-categorias de despesas'
-                                                                                                                                                                                                        },
-                                                                                                                                                                                                                    tooltip: {
-                                                                                                                                                                                                                        pointFormat: '{series.name}: <b>{point.percentage}%</b>',
-                                                                                                                                                                                                                        percentageDecimals: 1
-                                                                                                                                                                                                                                    },
-                                                                                                                                                                                                                                                plotOptions: {
-                                                                                                                                                                                                                                                                pie: {
-                                                                                                                                                                                                                                                                                    allowPointSelect: true,
-                                                                                                                                                                                                                                                                                                        cursor: 'pointer',
-                                                                                                                                                                                                                                                                                                                            dataLabels: {
-                                                                                                                                                                                                                                                                                                                                                    enabled: true,
-                                                                                                                                                                                                                                                                                                                                                                            color: '#000000',
-                                                                                                                                                                                                                                                                                                                                                                                                    connectorColor: '#000000',
-                                                                                                                                                                                                                                                                                                                                                                                                                            formatter: function() {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        return '<b>'+ this.point.name +'</b>: '+ this.percentage +' %';
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            series: [{
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            type: 'pie',
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            name: 'Despesas',
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            data: ['''
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
+        // Build the chart
+        chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'container',
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false
+            },
+            title: {
+                text: 'Categorias de despesas'
+            },
+            tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage}%</b>',
+                percentageDecimals: 1
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        color: '#000000',
+                        connectorColor: '#000000',
+                        formatter: function() {
+                            return '<b>' + this.point.name + '</b>: ' + Math.round(this.percentage) + ' %';
+                        }
+                    }
+                }
+            },
+            series: [{
+                type: 'pie',
+                name: 'Despesas',
+                data: ['''
 
 PAGE2 = ''']
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   }]
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            });
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                });
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    });
-   </script>
+}]
+});
+})
+});
+ </script>
 
  </body>  
 </html>
 '''
 
+from finance.models import *
+
+def balance(request, year):
+    monthly_expenses = []
+    for month in range(1,13):
+        total_expense = Expense.objects.filter(date__year=year).filter(date__month=month).filter(category__lte=7)
+        monthly_expenses.append(total_expense)
+    return HttpResponse(monthly_expenses)
 
 def pie_macro(request, year, month):
-    values = "['A',25.0],['b', 75.0]"
+    despesas = Expense.objects.filter(date__year=year).filter(date__month=month)
+    macros = {}
+    total = 0
+    for i in despesas:
+        category = i.category.macro.name
+        if category==u"Renda":
+            continue
+        if category not in macros:
+            macros[category]=0
+        macros[category] += i.value
+        total += i.value
+    values = ",".join([u"['%s = R$ %.2f', %f]" % (k,v,v/total*100)  for k,v in macros.items() ])
+    return HttpResponse(PIE_PAGE+values+PAGE2)
+
+def pie_micro(request, year, month):
+    despesas = Expense.objects.filter(date__year=year).filter(date__month=month)
+    macros = {}
+    total = 0
+    for i in despesas:
+        category = i.category.name
+        if category==u"Renda":
+            continue
+        if category not in macros:
+            macros[category]=0
+        macros[category] += i.value
+        total += i.value
+    values = ",".join([u"['%s = R$ %.2f', %f]" % (k,v,v/total*100)  for k,v in macros.items() ])
     return HttpResponse(PIE_PAGE+values+PAGE2)
