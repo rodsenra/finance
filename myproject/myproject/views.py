@@ -130,8 +130,28 @@ PAGE2 = ''']
 </html>
 '''
 
+ROOT_PAGE = '''
+<html>
+ <head>
+ <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+  <script src="http://code.highcharts.com/highcharts.js"></script>
+
+ </head>
+ <body>
+   <ul>
+     <li><a href="/balance/2013">Balanço 2013</a></li>
+     <li><a href="/balance/2014">Balanço 2014</a></li>
+   </ul>
+ </body>
+</html>
+'''
+
 from django.contrib.auth.decorators import login_required
 from finance.models import *
+
+@login_required
+def root(request):
+    return HttpResponse(ROOT_PAGE)
 
 @login_required
 def balance(request, year):

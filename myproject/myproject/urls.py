@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     url(r'^pie_macro/(?P<year>\d{4})/(?P<month>\d{2})/$', 'myproject.views.pie_macro'),
     url(r'^pie_micro/(?P<year>\d{4})/(?P<month>\d{2})/$', 'myproject.views.pie_micro'),
     url(r'^balance/(?P<year>\d{4})/$', 'myproject.views.balance'),                                              
+    url(r'^$', 'myproject.views.root'),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
